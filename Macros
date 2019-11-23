@@ -1,0 +1,389 @@
+Sub Filter()
+'
+' Filter Macro
+' Autofilters the selected cell's row
+
+    Selection.AutoFilter
+    
+End Sub
+
+Sub FitColumns()
+
+    ActiveCell.CurrentRegion.Select
+    ActiveCell.CurrentRegion.Columns.AutoFit
+    
+End Sub
+
+Sub GikaiDate()
+
+Dim i As Integer
+Dim y As Integer
+Dim text As String
+
+i = 0
+y = ActiveCell.End(xlDown).Row
+
+Do Until i = y
+    text = ActiveCell.Offset(i, 0).Value
+    'ActiveCell = "=Value(Mid(" & text & ", 5, 2)&""/""&Mid(" & text & ", 7, 2)&""/""&Left(" & text & ", 4)&"" ""&Mid(" & text & ", 9, 2)&"":""&Mid(" & text & ", 11, 2)&"":""&Right(" & text & ", 2))"
+    ActiveCell.Offset(i, 0) = Mid(text, 5, 2) & "/" & Mid(text, 7, 2) & "/" & Left(text, 4) & " " & Mid(text, 9, 2) & ":" & Mid(text, 11, 2) & ":" & Right(text, 2)
+    
+    ActiveCell.Offset(i, 0).NumberFormat = "m/dd/yy hh:mm"
+    i = i + 1
+    'ActiveCell = ActiveCell.Offset(i, 0)
+    
+    'ActiveCell.Offset(i, 0) = Left(GikiDate, 4) & "/" & Mid(GikiDate, 5, 2) & "/" & Mid(GikiDate, 7, 2) & " " & Mid(GikiDate, 9, 2) & ":" & Mid(GikiDate, 11, 2) & ":" & Right(GikiDate, 2)
+Loop
+
+
+
+End Sub
+
+Sub FortyNinePtFormulas()
+' Set Average, Range, and Uniformity formulas in the 49pt template spreadsheet.
+' <IMPORTANT> Change cell references if adding/subtracting rows
+
+Application.ScreenUpdating = False
+
+Range("E2").Formula = "=AVERAGE(C8:C56)"
+Range("D2").Formula = "=""Average=""&Trunc(E2,1)"
+Range("E3").Formula = "=MAX(C8:C56)-MIN(C8:C56)"
+Range("D3").Formula = "=""Rng=""&Trunc(E3,1)"
+Range("E4").Formula = "=E3/(E2)"
+Range("D4").Formula = "=""Unif=""&Trunc(100*E4,1)&""%"""
+
+Application.ScreenUpdating = True
+
+
+
+End Sub
+
+Sub fortyNinePtXYCoords()
+' Set X and Y coordinates of the 49pt Excel file by finding
+' the correct x and y values in the LHI measurement data pasted by the user.
+' <IMPORTANT> Change cell references if adding/subtracting rows
+
+Dim i As Integer
+
+Application.ScreenUpdating = False
+
+i = 1
+
+Do Until i = 50: ' Set x coordinate lookup equations
+    Cells(i + 7, 1).Formula = "=vlookup(""2X(" & i & ")"",H:I,2,FALSE)"
+    i = i + 1
+Loop
+
+i = 1
+
+Do Until i = 50: ' Set y coordinate lookup equations
+    Cells(i + 7, 2).Formula = "=vlookup(""2Y(" & i & ")"",H:I,2,FALSE)"
+    i = i + 1
+Loop
+
+Columns("A:E").Copy
+
+Columns("A:E").PasteSpecial Paste:=xlPasteValues
+
+
+Range("A8").Select
+
+Application.CutCopyMode = False
+
+Application.ScreenUpdating = True
+
+End Sub
+
+
+
+Sub Sherda()
+'Fill in a region of empty cells with something
+
+'Highlight the entire region that you want to fill in
+
+Dim sel As Variant
+
+sel = Selection
+rowLength = Selection.Rows.Count
+colLength = Selection.Columns.Count
+
+rowx = 0
+colx = 0
+
+Do Until rowx = rowLength
+    Do Until colx = colLength
+        If ActiveCell.Offset(rowx, colx).Value = "" Then _
+            ActiveCell.Offset(rowx, colx).Value = "-- "
+        colx = colx + 1
+        WaitFor (0.1)
+    Loop
+    colx = 0
+    rowx = rowx + 1
+Loop
+
+End Sub
+
+Sub EqpHistoryFormatting()
+
+Application.ScreenUpdating = False
+
+'Autofilter top row
+Columns.EntireColumn.AutoFilter
+
+'Remove unnecessary lot info
+Range("O:S").Columns.EntireColumn.Delete
+
+'Remove blank columns. Removed Columns: E, G, I-L
+Range("I:L").Columns.EntireColumn.Delete
+Range("G:G").Columns.EntireColumn.Delete
+Range("E:E").Columns.EntireColumn.Delete
+
+'Label Columns
+Range("A1").Value = "Tool"
+Range("B1").Value = "Start"
+Range("C1").Value = "Finish"
+Range("D1").Value = "Lot"
+Range("E1").Value = "BPN"
+Range("F1").Value = "Qty"
+Range("G1").Value = "Cond"
+
+
+'Freeze panes top row
+ActiveWindow.SplitRow = 0.75
+ActiveWindow.FreezePanes = True
+
+'Autosize all columns
+Columns("A:G").EntireColumn.AutoFit
+
+
+'TODO: Remove B00 (advanced) tools
+i = 0
+Range("A1").Activate
+y = ActiveCell.End(xlDown).Row
+
+Do Until i = y
+    If ActiveCell.Offset(i, 0).Value = "B00" Then
+        ActiveCell.Offset(i, 0).EntireRow.Delete
+        i = i - 1
+        y = y - 1
+    End If
+    
+    i = i + 1
+Loop
+
+Application.ScreenUpdating = True
+
+
+'TODO: Highlight PC pilots?
+
+End Sub
+
+Sub WaitFor(time)
+    Dim start As Variant
+    start = Timer    ' Set start time.
+    Do While Timer < start + time
+        DoEvents    ' Yield to other processes.
+    Loop
+End Sub
+
+Sub SeparateDateTimes()
+
+Application.ScreenUpdating = False
+
+
+i = 0
+y = ActiveCell.End(xlDown).Row
+y = y - 1
+
+For x = 1 To 5
+    ActiveCell.Offset(0, 1).EntireColumn.Insert
+Next
+
+For x = 1 To 5
+    If x = 1 Then ActiveCell.Offset(0, x).End(xlUp).Value = "Year"
+    If x = 2 Then ActiveCell.Offset(0, x).End(xlUp).Value = "Month"
+    If x = 3 Then ActiveCell.Offset(0, x).End(xlUp).Value = "Day"
+    If x = 4 Then ActiveCell.Offset(0, x).End(xlUp).Value = "Hour"
+    If x = 5 Then ActiveCell.Offset(0, x).End(xlUp).Value = "Minute"
+Next
+
+Do Until i = y
+        ActiveCell.Offset(i, 1).Formula = "=year(" & ActiveCell.Offset(i, 0).Address & ")"
+        ActiveCell.Offset(i, 1).NumberFormat = "0"
+        ActiveCell.Offset(i, 2).Formula = "=month(" & ActiveCell.Offset(i, 0).Address & ")"
+        ActiveCell.Offset(i, 2).NumberFormat = "0"
+        ActiveCell.Offset(i, 3).Formula = "=day(" & ActiveCell.Offset(i, 0).Address & ")"
+        ActiveCell.Offset(i, 3).NumberFormat = "0"
+        ActiveCell.Offset(i, 4).Formula = "=hour(" & ActiveCell.Offset(i, 0).Address & ")"
+        ActiveCell.Offset(i, 4).NumberFormat = "0"
+        ActiveCell.Offset(i, 5).Formula = "=minute(" & ActiveCell.Offset(i, 0).Address & ")"
+        ActiveCell.Offset(i, 5).NumberFormat = "0"
+    i = i + 1
+Loop
+
+Application.ScreenUpdating = True
+
+End Sub
+
+Sub MTEDataFormatter()
+'
+' To be used with data that still needs to be text-to-columned and transposed.
+'
+
+    Application.ScreenUpdating = False
+        
+    'Change the text to columns
+    Columns("A:A").Select
+    Selection.TextToColumns Destination:=Range("A1"), DataType:=xlDelimited, _
+        TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=True, _
+        Semicolon:=False, Comma:=True, Space:=False, Other:=False
+    
+    'Select the entire used range on the sheet and copy it
+    ActiveSheet.UsedRange.Select
+    Selection.Copy
+    
+    'Find the current last used row
+    rowx = Range("A3").End(xlDown).Row
+    
+    'Range("A27").Activate
+    'Selection.Delete Shift:=xlUp
+    
+    'Select the cell two spaces below the last row used and paste/transpose the data to it
+    Cells(rowx + 2, 1).Select
+    Selection.PasteSpecial Paste:=xlPasteAll, Operation:=xlNone, _
+        SkipBlanks:=False, Transpose:=True
+        
+    Application.CutCopyMode = False
+    For y = 1 To rowx + 1
+        Range("A1").Rows.EntireRow.Select
+        Selection.Delete Shift:=xlUp
+    Next y
+    
+    ' Delete rows: 11, 10, 9, 8, 7, 6, 5, 1
+    Rows("11").Delete
+    Rows("5:9").Delete
+    Rows(1).Delete
+    
+    'Change date format and correct wafer IDs
+    x = Range("C3").End(xlToRight).Column
+    For y = 3 To x
+        
+        text = Cells(3, y).Value
+        Cells(3, y) = Left(text, 6) & Mid(text, 9, 2)
+        Cells(3, y).NumberFormat = "m/d/yy"
+        
+        wfid = Cells(1, y).Value
+        Cells(1, y) = 27 - wfid
+        
+    Next y
+    
+    'Correct headers
+    Range("A1").Value = "Wafer"
+    Range("A2").Value = "Lot"
+    Range("A3").Value = "Date"
+    Range("A4").Value = "Layer"
+    Range("A5").Value = "Avg"
+    Range("A6").Value = "Min"
+    Range("A7").Value = "Max"
+    Range("A8").Value = "% Std Dev"
+    Range("A9").Value = "Range"
+    
+    'Get lot number
+    LotNumUserForm.Show
+    
+    'Autosize columns
+    For y = 1 To x
+        Cells(1, y).Select
+        Selection.Columns.EntireColumn.AutoFit
+    Next y
+    
+    Range("A1").Select
+    
+    Application.ScreenUpdating = True
+    
+End Sub
+
+Sub AutosizeColumns()
+'
+' AutosizeColumns Macro
+'
+
+'
+i = 0
+Range("A1").Activate
+y = ActiveCell.End(xlDown).Row
+
+Do Until i = y
+    If ActiveCell.Offset(i, 0).Value = "B00" Then
+        ActiveCell.Offset(i, 0).EntireRow.Delete
+        i = i - 1
+        y = y - 1
+    End If
+    
+    i = i + 1
+Loop
+
+End Sub
+
+
+Sub ChangeTextCase()
+'Created by Ivan F. Moala.
+'Found in Excel 2016 VBA and Macros by Bill Jelen and Tracy Syrstad.
+
+Dim RgText As Range
+Dim oCell As Range
+Dim Ans As String
+Dim strTest As String
+Dim sCap As Integer, _
+    lCap As Integer, _
+    i As Integer
+    
+'// You need to select a range to alter first:
+
+Again:
+Ans = Application.InputBox("[L]owercase" & vbCr & "[U]ppercase" & vbCr & _
+    "[S]entence" & vbCr & "[T]itles" & vbCr & "[C]apsSmall", _
+    "Type in a Letter", Type:=2)
+
+If Ans = "False" Then Exit Sub
+If InStr(1, "LUSTC", UCase(Ans), vbTextCompare) = 0 _
+    Or Len(Ans) > 1 Then GoTo Again
+
+On Error GoTo NoText
+If Selection.Count = 1 Then
+    Set RgText = Selection
+Else
+    Set RgText = Selection.SpecialCells(xlCellTypeConstants, 2)
+End If
+On Error GoTo 0
+
+For Each oCell In RgText
+    Select Case UCase(Ans)
+        Case "L": oCell = LCase(oCell.text)
+        Case "U": oCell = UCase(oCell.text)
+        Case "S": oCell = UCase(Left(oCell.text, 1)) & _
+            LCase(Right(oCell.text, Len(oCell.text) - 1))
+        Case "T": oCell = Application.WorksheetFunction.Proper(oCell.text)
+        Case "C"
+            lCap = oCell.Characters(1, 1).Font.Size
+            sCap = Int(lCap * 0.85)
+            'Small caps for everything.
+            oCell.Font.Size = sCap
+            oCell.Value = UCase(oCell.text)
+            strTest = oCell.Value
+            'Large caps for 1st letter of words.
+            strTest = Application.Proper(strTest)
+            For i = 1 To Len(strTest)
+                If Mid(strTest, i, 1) = UCase(Mid(strTest, i, 1)) Then
+                    oCell.Characters(i, 1).Font.Size = lCap
+                End If
+            Next i
+    End Select
+Next
+
+Exit Sub
+NoText:
+MsgBox "No text in your selection @ " & Selection.Address
+
+End Sub
+
