@@ -281,12 +281,13 @@ Sub MTEDataFormatter()
     Range("A1").Value = "Wafer"
     Range("A2").Value = "Lot"
     Range("A3").Value = "Date"
-    Range("A4").Value = "Layer"
-    Range("A5").Value = "Avg"
-    Range("A6").Value = "Min"
-    Range("A7").Value = "Max"
-    Range("A8").Value = "% Std Dev"
-    Range("A9").Value = "Range"
+    Range("A4").Value = "Film Card"
+    Range("A5").Value = "Measurement"
+    Range("A6").Value = "Avg"
+    Range("A7").Value = "Min"
+    Range("A8").Value = "Max"
+    Range("A9").Value = "% Std Dev"
+    Range("A10").Value = "Range"
     
     'Get lot number
     LotNumUserForm.Show
